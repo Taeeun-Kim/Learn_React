@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from './axios';
 import './Row.css';
+import YouTube from 'react-youtube';
+import movieTrailer from 'movie-trailer';
 
 const baseUrl = 'https://image.tmdb.org/t/p/original/';
 
@@ -10,6 +12,8 @@ function Row({ title, fetchUrl, isLargeRow }) {
   const [movies, setMovies] = useState([]);
   // 함수형 컴포넌트에서는 상태관리를 할 수 없었지만 리액트 16.8에서 Hooks라는 기능이 도입되면서 함수형 컴포넌트에서도 상태를 관리할 수 있게 되었다.
   // 스위프트에서는 함수에서 @State값 조정 못하는데, 리액트에서는 가능!
+
+  const [trailerUrl, setTrailerUrl] = useState('');
 
   useEffect(() => {
     // when the row appears on the screen, make a request, 정확히 row가 로드되면, make a request!
@@ -28,6 +32,28 @@ function Row({ title, fetchUrl, isLargeRow }) {
 
   // console.table(movies);
 
+  const opts = {
+    height: '300',
+    width: '100%',
+    playerVars: {
+      autoplay: 1,
+    },
+  };
+
+  const handleClick = (movie) => {
+    if (trailerUrl) {
+      setTrailerUrl('');
+    } else {
+      movieTrailer(movie?.name || '')
+        .then((url) => {
+          console.log(url);
+          const urlParams = new URLSearchParams(new URL(url).search);
+          setTrailerUrl(urlParams.get('v'));
+        })
+        .catch((error) => console.log(error));
+    }
+  };
+
   return (
     <div className="row">
       <h2>{title}</h2>
@@ -36,6 +62,7 @@ function Row({ title, fetchUrl, isLargeRow }) {
         {movies.map((movie) => (
           <img
             key={movie.id}
+            onClick={() => handleClick(movie)}
             className={`row__poster ${isLargeRow && 'row__posterLarge'}`}
             src={`${baseUrl}${
               isLargeRow ? movie.poster_path : movie.backdrop_path
@@ -44,6 +71,8 @@ function Row({ title, fetchUrl, isLargeRow }) {
           /> // alt 속성은 그림이 렌더링되지 못할 때 나타날 문자열을 지정하기 위한 값
         ))}
       </div>
+      {/* opts은 도큐멘테이션에서 여러가지 옵션 확인 가능 */}
+      {trailerUrl && <YouTube videoId={trailerUrl} opts={opts} />}
     </div>
   );
 }
