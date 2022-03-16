@@ -1,27 +1,32 @@
 import React, { useState } from 'react';
+import AddToList from './components/AddToList';
+import List from './components/List';
+import './App.css';
+
+export interface IState {
+  people: {
+    name: string;
+    age: number;
+    url: string;
+    note?: string;
+  }[];
+}
 
 function App() {
-  const [people, setPeople] = useState([
+  const [people, setPeople] = useState<IState['people']>([
     {
       name: 'Taeeun',
-      url: '',
+      url: 'https://avatars.githubusercontent.com/u/44340864?v=4',
       age: 25,
-      note: 'All right',
-    },
-    {
-      name: 'Eric',
-      url: '',
-      age: 25,
+      note: 'Gazua',
     },
   ]);
 
-  people.map((person) => {
-    person.age = 5;
-  });
-
   return (
-    <div>
+    <div className='App'>
       <h1>People invited to my party</h1>
+      <List people={people} />
+      <AddToList people={people} setPeople={setPeople} />
     </div>
   );
 }
